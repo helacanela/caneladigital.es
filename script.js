@@ -30,16 +30,33 @@ document.addEventListener('DOMContentLoaded', () => {
       submitBtn.disabled = true;
       submitBtn.style.opacity = '0.7';
       
-      // Simulate network request
-      setTimeout(() => {
-        form.innerHTML = `
-          <div style="text-align: center; padding: 3rem 1rem;">
-            <div style="font-size: 3rem; color: var(--raspberry); margin-bottom: 1rem;">✓</div>
-            <h3 style="margin-bottom: 0.5rem; color: var(--text-color);">Заявка успешно отправлена</h3>
-            <p style="color: var(--text-muted);">Мы свяжемся с вами в ближайшее время для обсуждения деталей вашего проекта.</p>
-          </div>
-        `;
-      }, 1500);
+      const formData = new FormData(form);
+      const actionUrl = form.getAttribute('action');
+
+      fetch(actionUrl, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (response.ok) {
+          form.innerHTML = `
+            <div style="text-align: center; padding: 3rem 1rem;">
+              <div style="font-size: 3rem; color: var(--raspberry); margin-bottom: 1rem;">✓</div>
+              <h3 style="margin-bottom: 0.5rem; color: var(--text-color);">Заявка успешно отправлена</h3>
+              <p style="color: var(--text-muted);">Мы свяжемся с вами в ближайшее время для обсуждения деталей вашего проекта.</p>
+            </div>
+          `;
+        } else {
+          throw new Error('Network response was not ok');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        alert('Произошла ошибка при отправке заявки. Пожалуйста, попробуйте позже.');
+      });
     });
   }
 
